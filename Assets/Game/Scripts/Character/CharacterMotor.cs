@@ -6,30 +6,32 @@ public class CharacterMotor : MonoBehaviour {
 	protected CharacterController character;
 	protected bool jumpedEarly = false;
 	
-	public bool usePerfectHopInDebug = false;
-	public bool usingPerfectHop { get { return Debug.isDebugBuild && usePerfectHopInDebug; } }
-	
 	public class Control {
 		public Vector2 move = Vector2.zero;
 		public Vector2 look = Vector2.zero;
-		public bool jump;
+		public bool jumpInput = false;
+		public float delayJump = 0.0f;
+		public bool jump {
+			get { return jumpInput && delayJump <= 0.0f; }
+			set { jumpInput = value; }
+		}
 		public bool wallRun;
 	}
 	public Control control = new Control();
 	
 	[System.Serializable]
 	public class Movement {
-		public float runSpeed = 12.0f; //Running speed in units per second
+		public float runSpeed = 10.0f; //Running speed in units per second
 		public float sqrunSpeed { get { return runSpeed * runSpeed; } }
 		public float groundFriction = 40.0f; //Deceleration of grounded player going above run speed in units per second per second
 		public float drag = 1 / 500.0f; //Players drag in the air. Multiply by 1/2 velocity squared to get deceleration
-		public float gravity = 9.8f;
+		public float gravity = 10.5f;
 	}
 	public Movement move = new Movement();
 	
 	[System.Serializable]
 	public class Sliding {
-		public float slidingSpeed = 12.2f; //Running speed in units per second
+		public float slidingSpeed = 10.1f; //Running speed in units per second
 		public float sqrSlidingSpeed { get { return slidingSpeed * slidingSpeed; } }
 		public float stopRate = 5.0f; //Rate of deceleration when player opposes movement above sliding speed in units per second per second
 	}
@@ -38,8 +40,8 @@ public class CharacterMotor : MonoBehaviour {
 	[System.Serializable]
 	public class Jumping {
 		public float verticalJumpImpulse = 6.0f; //Players vertical change in speed when jumping up in units per second
-		public float directionalJumpImpulse = 3.75f; //Players horizontal change in speed when jumping in a direction in units per second
-		public float directionalJumpVerticalImpulse = 4.0f; //Players vertical change in speed when jumping in a direction in units per second
+		public float directionalJumpImpulse = 3f; //Players horizontal change in speed when jumping in a direction in units per second
+		public float directionalJumpVerticalImpulse = 4.2f; //Players vertical change in speed when jumping in a direction in units per second
 		public float earlyJumpPenalty = 0.1f; //Players horizontal loss of speed for jumping early as a fraction
 	}
 	public Jumping jump = new Jumping();
@@ -63,6 +65,8 @@ public class CharacterMotor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+		if(control.delayJump > 0.0f)
+			control.delayJump -= Time.deltaTime;
 		Vector3 velocity = character.velocity;
 		//apply drag
 		velocity -= velocity.normalized * Mathf.Clamp(velocity.sqrMagnitude/2 * move.drag * Time.deltaTime, 0.0f, velocity.magnitude);
@@ -91,14 +95,14 @@ public class CharacterMotor : MonoBehaviour {
 				velocity += accel * Time.deltaTime;
 			}
 			if(control.jump) {
-				velocity -= Mathf.Clamp(Vector3.Dot(velocity, worldMove) / velocity.magnitude, -1f, 0f) * worldMove;
+				if(velocity != Vector3.zero)
+					velocity -= Mathf.Clamp(Vector3.Dot(velocity, worldMove) / velocity.magnitude, -1f, 0f) * worldMove;
 				
 				float directionality = control.move.magnitude;
 				velocity += (1 - directionality) * Vector3.up * jump.verticalJumpImpulse;
 				velocity += directionality * (Vector3.up * jump.directionalJumpVerticalImpulse + worldMove * jump.directionalJumpImpulse);
 				
-				if(!usingPerfectHop)
-					control.jump = false;
+				control.jump = false;
 			}
 		} else {
 			bool wallRunning = false;
@@ -109,8 +113,8 @@ public class CharacterMotor : MonoBehaviour {
 				Vector3 p2 = p1 + Vector3.up * character.height;
 				RaycastHit info1;
 				RaycastHit info2;
-				bool hit1 = Physics.CapsuleCast(p1, p2, character.radius, side, out info1, 0.5f);
-				bool hit2 = Physics.CapsuleCast(p1, p2, character.radius, -side, out info2, 0.5f);
+				bool hit1 = Physics.CapsuleCast(p1, p2, character.radius, side, out info1, 0.1f);
+				bool hit2 = Physics.CapsuleCast(p1, p2, character.radius, -side, out info2, 0.1f);
 				hit1 = hit1 && info1.collider.tag == "Structure";
 				hit2 = hit2 && info2.collider.tag == "Structure";
 				if(hit1 || hit2) {
@@ -137,18 +141,18 @@ public class CharacterMotor : MonoBehaviour {
 					if(control.jump) {
 						if(hit1 && (!hit2 || info1.distance < info2.distance))
 							side *= -1;
-						velocity += 0.5f * Vector3.up * jump.verticalJumpImpulse;
-						velocity += 0.5f * (Vector3.up * jump.directionalJumpVerticalImpulse + side * jump.directionalJumpImpulse);
+						velocity += 0.75f * Vector3.up * jump.verticalJumpImpulse;
+						velocity += 0.25f * (Vector3.up * jump.directionalJumpVerticalImpulse + side * jump.directionalJumpImpulse);
 						
-						if(!usingPerfectHop)
-							control.jump = false;
+						control.jump = false;
+						control.delayJump = 0.5f;
 					}
 				}
 			} 
 			if (!wallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
 				if(control.jump) {
-					jumpedEarly = !usingPerfectHop;
+					jumpedEarly = true;
 				}
 			}
 		}
