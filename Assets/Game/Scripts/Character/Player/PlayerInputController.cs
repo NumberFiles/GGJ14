@@ -14,6 +14,8 @@ public class PlayerInputController : MonoBehaviour {
 	void Update () {
 		if(Input.GetButtonDown("Jump"))
 			motor.control.jump = true;
+		if(Input.GetButtonUp("Jump"))
+			motor.control.jump = false;
 		motor.control.move = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
 	}
 }
