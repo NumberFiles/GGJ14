@@ -2,26 +2,22 @@ using UnityEngine;
 using System.Collections;
 
 [RequireComponent (typeof(CharacterController))]
+[RequireComponent (typeof(Controller))]
 public class CharacterMotor : MonoBehaviour {
 	protected CharacterController character;
-	protected bool jumpedEarly = false;
+	protected Controller control;
 	
-	public class Control {
-		public Vector2 move = Vector2.zero;
-		public Vector2 look = Vector2.zero;
-		public bool jumpInput = false;
-		public float delayJump = 0.0f;
-		public bool jump {
-			get { return jumpInput && delayJump <= 0.0f; }
-			set { jumpInput = value; }
-		}
-		public bool wallRun;
+	protected Vector3 unappliedImpulse = Vector3.zero;
+	protected bool jumpedEarly = false;
+	protected float delayJump = 0.0f;
+	public bool doJump {
+		get { return control.input.jump && delayJump <= 0.0f; }
+		set { control.input.jump = value; }
 	}
-	public Control control = new Control();
 	
 	[System.Serializable]
 	public class Movement {
-		public float runSpeed = 10.0f; //Running speed in units per second
+		public float runSpeed = 8.0f; //Running speed in units per second
 		public float sqrunSpeed { get { return runSpeed * runSpeed; } }
 		public float groundFriction = 40.0f; //Deceleration of grounded player going above run speed in units per second per second
 		public float drag = 1 / 500.0f; //Players drag in the air. Multiply by 1/2 velocity squared to get deceleration
@@ -31,7 +27,7 @@ public class CharacterMotor : MonoBehaviour {
 	
 	[System.Serializable]
 	public class Sliding {
-		public float slidingSpeed = 10.1f; //Running speed in units per second
+		public float slidingSpeed = 8.1f; //Running speed in units per second
 		public float sqrSlidingSpeed { get { return slidingSpeed * slidingSpeed; } }
 		public float stopRate = 5.0f; //Rate of deceleration when player opposes movement above sliding speed in units per second per second
 	}
@@ -59,20 +55,21 @@ public class CharacterMotor : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		character = GetComponent<CharacterController>();
-		Vector3 euler = transform.eulerAngles;
-		control.look = new Vector2(euler.x, euler.y);
+		control = GetComponent<Controller>();
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		if(control.delayJump > 0.0f)
-			control.delayJump -= Time.deltaTime;
+		if(delayJump > 0.0f)
+			delayJump -= Time.deltaTime;
 		
-		Vector3 velocity = character.velocity;
+		Vector3 velocity = character.velocity + unappliedImpulse;
+		unappliedImpulse = Vector3.zero;
+		
 		//apply drag
 		velocity -= velocity.normalized * Mathf.Clamp(velocity.sqrMagnitude/2 * move.drag * Time.deltaTime, 0.0f, velocity.magnitude);
 		
-		transform.eulerAngles = new Vector3(0.0f, control.look.y, 0.0f);
+		transform.eulerAngles = new Vector3(0.0f, control.input.look.y, 0.0f);
 		
 		if(character.isGrounded) {
 			velocity.y = 0;
@@ -83,7 +80,7 @@ public class CharacterMotor : MonoBehaviour {
 			}
 			
 			//calculate our movement input direction in world space
-			Vector3 worldMove = new Vector3(control.move.x, 0, control.move.y);
+			Vector3 worldMove = new Vector3(control.input.move.x, 0, control.input.move.y);
 			worldMove = transform.rotation * worldMove;
 			
 			if(velocity.sqrMagnitude <= slide.sqrSlidingSpeed) {
@@ -95,19 +92,19 @@ public class CharacterMotor : MonoBehaviour {
 				accel += Mathf.Clamp(Vector3.Dot(worldMove, velDir), -1f, 0f) * velDir;
 				velocity += accel * Time.deltaTime;
 			}
-			if(control.jump) {
+			if(doJump) {
 				if(velocity != Vector3.zero)
 					velocity -= Mathf.Clamp(Vector3.Dot(velocity, worldMove) / velocity.magnitude, -1f, 0f) * worldMove;
 				
-				float directionality = control.move.magnitude;
+				float directionality = control.input.move.magnitude;
 				velocity += (1 - directionality) * Vector3.up * jump.verticalJumpImpulse;
 				velocity += directionality * (Vector3.up * jump.directionalJumpVerticalImpulse + worldMove * jump.directionalJumpImpulse);
 				
-				control.jump = false;
+				control.input.jump = false;
 			}
 		} else {
 			bool wallRunning = false;
-			if(control.wallRun) {
+			if(control.input.wallRun) {
 				Vector3 hVel = new Vector3(velocity.x, 0.0f, velocity.z);
 				Vector3 side = new Vector3(-velocity.z, 0.0f, velocity.x).normalized;
 				Vector3 p1 = transform.position + character.center + Vector3.up * (-character.height*0.5f);
@@ -139,20 +136,20 @@ public class CharacterMotor : MonoBehaviour {
 					//look at x >= 0
 					float reductionFactor = minGravity/(1 + minGravity - 1/(hVel.magnitude*gReductSlope + 1));
 					velocity.y -= move.gravity * Time.deltaTime * reductionFactor;
-					if(control.jump) {
+					if(doJump) {
 						if(hit1 && (!hit2 || info1.distance < info2.distance))
 							side *= -1;
 						velocity += 0.75f * Vector3.up * jump.verticalJumpImpulse;
 						velocity += 0.25f * (Vector3.up * jump.directionalJumpVerticalImpulse + side * jump.directionalJumpImpulse);
 						
-						control.jump = false;
-						control.delayJump = 0.5f;
+						control.input.jump = false;
+						delayJump = 0.5f;
 					}
 				}
 			} 
 			if (!wallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
-				if(control.jump) {
+				if(doJump) {
 					jumpedEarly = true;
 				}
 			}
@@ -160,5 +157,9 @@ public class CharacterMotor : MonoBehaviour {
 		
 		character.Move(velocity * Time.deltaTime);
 		Debug.Log(velocity.magnitude);
+	}
+	
+	public void ApplyImpulse(Vector3 impulse) {
+		unappliedImpulse += impulse;
 	}
 }
