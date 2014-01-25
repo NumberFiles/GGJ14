@@ -4,12 +4,14 @@ using System.Collections;
 public class BasicWeapon : Weapon {
 	public Projectile projectile;
 	public float spawnAheadBy = 1.0f;
-	public float fireDelay = 1.0f;
+	public float shotDelay = 1.0f;
+	protected float fireDelay = 0.0f;
 	
 	bool isDrawn = false;
 	
 	protected virtual void FixedUpdate() {
-		fireDelay -= Time.deltaTime;
+		if(fireDelay > 0.0f)
+			fireDelay -= Time.deltaTime;
 	}
 
 	public override float Draw(){
@@ -29,7 +31,10 @@ public class BasicWeapon : Weapon {
 	}
 	
 	public override bool Fire(Vector3 direction){
-		Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
+		if(fireDelay <= 0.0f) {
+			Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
+			fireDelay = shotDelay;
+		}
 		return false;
 	}
 }
