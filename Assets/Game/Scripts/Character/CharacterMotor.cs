@@ -43,6 +43,7 @@ public class CharacterMotor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+		UnityEngine.Debug.Log("Fixed update in character motor");
 		//get our horizontal velocity
 		Vector3 velocity = character.velocity;
 		velocity.y = 0;
