@@ -6,10 +6,14 @@ public class CharacterMotor : MonoBehaviour {
 	protected CharacterController character;
 	protected bool jumpedEarly = false;
 	
+	public bool usePerfectHopInDebug = false;
+	public bool usingPerfectHop { get { return Debug.isDebugBuild && usePerfectHopInDebug; } }
+	
 	public class Control {
 		public Vector2 move = Vector2.zero;
 		public Vector2 look = Vector2.zero;
 		public bool jump;
+		public bool wallRun;
 	}
 	public Control control = new Control();
 	
@@ -18,7 +22,7 @@ public class CharacterMotor : MonoBehaviour {
 		public float runSpeed = 12.0f; //Running speed in units per second
 		public float sqrunSpeed { get { return runSpeed * runSpeed; } }
 		public float groundFriction = 40.0f; //Deceleration of grounded player going above run speed in units per second per second
-		public float airFriction = 1 / 15.0f; //Players air friction. Multiply by velocity to get deceleration
+		public float drag = 1 / 500.0f; //Players drag in the air. Multiply by 1/2 velocity squared to get deceleration
 		public float gravity = 9.8f;
 	}
 	public Movement move = new Movement();
@@ -33,12 +37,22 @@ public class CharacterMotor : MonoBehaviour {
 	
 	[System.Serializable]
 	public class Jumping {
-		public float verticalJumpImpulse = 5.0f; //Players vertical change in speed when jumping up in units per second
-		public float directionalJumpImpulse = 3.5f; //Players horizontal change in speed when jumping in a direction in units per second
+		public float verticalJumpImpulse = 6.0f; //Players vertical change in speed when jumping up in units per second
+		public float directionalJumpImpulse = 3.75f; //Players horizontal change in speed when jumping in a direction in units per second
 		public float directionalJumpVerticalImpulse = 4.0f; //Players vertical change in speed when jumping in a direction in units per second
-		public float earlyJumpPenalty = 0.2f; //Players horizontal loss of speed for jumping early as a fraction
+		public float earlyJumpPenalty = 0.1f; //Players horizontal loss of speed for jumping early as a fraction
 	}
 	public Jumping jump = new Jumping();
+	
+	[System.Serializable]
+	public class WallRunning {
+		public float minRisingGravity = 0.5f; //Minimum ratio of gravity that must be applied when wallrunning and rising
+		public float risingGravityReductionSlope = 0.075f; //Rate of gravity reduction increase
+		public float minFallingGravity = 0.25f;  //Minimum ratio of gravity that must be applied when wallrunning and falling
+		public float fallingGravityReductionSlope = 0.075f; //Minimum ratio of gravity that must be applied when wallrunning and rising
+		public float friction = 0.0f; //Deceleration of grounded player going above run speed in units per second per second
+	}
+	public WallRunning wallrun = new WallRunning();
 	
 	// Use this for initialization
 	void Start () {
@@ -50,8 +64,8 @@ public class CharacterMotor : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 		Vector3 velocity = character.velocity;
-		velocity -= character.velocity * move.airFriction * Time.deltaTime;
-		velocity.y -= move.gravity * Time.deltaTime;
+		//apply drag
+		velocity -= velocity.normalized * Mathf.Clamp(velocity.sqrMagnitude/2 * move.drag * Time.deltaTime, 0.0f, velocity.magnitude);
 		
 		transform.eulerAngles = new Vector3(0.0f, control.look.y, 0.0f);
 		
@@ -83,10 +97,60 @@ public class CharacterMotor : MonoBehaviour {
 				velocity += (1 - directionality) * Vector3.up * jump.verticalJumpImpulse;
 				velocity += directionality * (Vector3.up * jump.directionalJumpVerticalImpulse + worldMove * jump.directionalJumpImpulse);
 				
-				control.jump = false;
+				if(!usingPerfectHop)
+					control.jump = false;
 			}
-		} else if(control.jump) {
-			jumpedEarly = true;
+		} else {
+			bool wallRunning = false;
+			if(control.wallRun) {
+				Vector3 hVel = new Vector3(velocity.x, 0.0f, velocity.z);
+				Vector3 side = new Vector3(-velocity.z, 0.0f, velocity.x).normalized;
+				Vector3 p1 = transform.position + character.center + Vector3.up * (-character.height*0.5f);
+				Vector3 p2 = p1 + Vector3.up * character.height;
+				RaycastHit info1;
+				RaycastHit info2;
+				bool hit1 = Physics.CapsuleCast(p1, p2, character.radius, side, out info1, 0.5f);
+				bool hit2 = Physics.CapsuleCast(p1, p2, character.radius, -side, out info2, 0.5f);
+				hit1 = hit1 && info1.collider.tag == "Structure";
+				hit2 = hit2 && info2.collider.tag == "Structure";
+				if(hit1 || hit2) {
+					wallRunning = true;
+					//apply friction
+					if(wallrun.friction * Time.deltaTime > velocity.magnitude)
+						velocity = Vector3.zero;
+					else {
+						Vector3 velDir = velocity.normalized;
+						Vector3 accel = Vector3.zero;
+						accel -= velDir * wallrun.friction;
+						velocity += accel * Time.deltaTime;
+					}
+					
+					//apply gravity
+					float minGravity = velocity.y > 0 ? wallrun.minRisingGravity : wallrun.minFallingGravity;
+					float gReductSlope = velocity.y > 0 ? wallrun.risingGravityReductionSlope : wallrun.fallingGravityReductionSlope;
+					
+					//not gonna explain why this works
+					//just google or wulfrumalpha 0.25/(1 + 0.25 - 1/(x*0.075 + 1)) to see curve
+					//look at x >= 0
+					float reductionFactor = minGravity/(1 + minGravity - 1/(hVel.magnitude*gReductSlope + 1));
+					velocity.y -= move.gravity * Time.deltaTime * reductionFactor;
+					if(control.jump) {
+						if(hit1 && (!hit2 || info1.distance < info2.distance))
+							side *= -1;
+						velocity += 0.5f * Vector3.up * jump.verticalJumpImpulse;
+						velocity += 0.5f * (Vector3.up * jump.directionalJumpVerticalImpulse + side * jump.directionalJumpImpulse);
+						
+						if(!usingPerfectHop)
+							control.jump = false;
+					}
+				}
+			} 
+			if (!wallRunning){
+				velocity.y -= move.gravity * Time.deltaTime;
+				if(control.jump) {
+					jumpedEarly = !usingPerfectHop;
+				}
+			}
 		}
 		
 		character.Move(velocity * Time.deltaTime);
