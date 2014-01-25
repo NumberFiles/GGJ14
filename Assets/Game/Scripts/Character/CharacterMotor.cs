@@ -65,13 +65,9 @@ public class CharacterMotor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-<<<<<<< HEAD
-		UnityEngine.Debug.Log("Fixed update in character motor");
-		//get our horizontal velocity
-=======
 		if(control.delayJump > 0.0f)
 			control.delayJump -= Time.deltaTime;
->>>>>>> origin/master
+		
 		Vector3 velocity = character.velocity;
 		//apply drag
 		velocity -= velocity.normalized * Mathf.Clamp(velocity.sqrMagnitude/2 * move.drag * Time.deltaTime, 0.0f, velocity.magnitude);
