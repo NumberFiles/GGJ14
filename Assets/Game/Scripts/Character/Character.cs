@@ -8,7 +8,7 @@ public class Character : MonoBehaviour {
 	protected Controller control;
 	protected CharacterMotor motor;
 	
-	public string[] weaponSlots = { "Rocket" };
+	public string[] weaponSlots = { "Pistol", "Rocket" };
 	protected Dictionary<string, Weapon> slottedWeapons = new Dictionary<string, Weapon>();
 	
 	public float healthPoints {

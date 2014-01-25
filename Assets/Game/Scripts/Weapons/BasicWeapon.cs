@@ -5,6 +5,7 @@ public class BasicWeapon : Weapon {
 	public Projectile projectile;
 	public float spawnAheadBy = 1.0f;
 	public float shotDelay = 1.0f;
+	public bool fullAuto = false;
 	protected float fireDelay = 0.0f;
 	
 	bool isDrawn = false;
@@ -35,6 +36,6 @@ public class BasicWeapon : Weapon {
 			Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
 			fireDelay = shotDelay;
 		}
-		return false;
+		return fullAuto;
 	}
 }
