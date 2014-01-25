@@ -2,11 +2,11 @@
 var autoRotate : boolean = true;
 var maxRotationSpeed : float = 360;
 
-private var motor : CharacterMotor;
+private var motor : SACharacterMotor;
 
 // Use this for initialization
 function Awake () {
-	motor = GetComponent(CharacterMotor);
+	motor = GetComponent(SACharacterMotor);
 }
 
 // Update is called once per frame
@@ -64,5 +64,5 @@ function ConstantSlerp (from : Vector3, to : Vector3, angle : float) {
 }
 
 // Require a character controller to be attached to the same game object
-@script RequireComponent (CharacterMotor)
+@script RequireComponent (SACharacterMotor)
 @script AddComponentMenu ("Character/Platform Input Controller")

@@ -1,8 +1,8 @@
-private var motor : CharacterMotor;
+private var motor : SACharacterMotor;
 
 // Use this for initialization
 function Awake () {
-	motor = GetComponent(CharacterMotor);
+	motor = GetComponent(SACharacterMotor);
 }
 
 // Update is called once per frame
@@ -33,5 +33,5 @@ function Update () {
 }
 
 // Require a character controller to be attached to the same game object
-@script RequireComponent (CharacterMotor)
+@script RequireComponent (SACharacterMotor)
 @script AddComponentMenu ("Character/FPS Input Controller")
