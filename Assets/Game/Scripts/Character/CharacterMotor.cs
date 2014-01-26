@@ -21,6 +21,7 @@ public class CharacterMotor : MonoBehaviour {
 		public float sqrunSpeed { get { return runSpeed * runSpeed; } }
 		public float groundFriction = 40.0f; //Deceleration of grounded player going above run speed in units per second per second
 		public float drag = 1 / 500.0f; //Players drag in the air. Multiply by 1/2 velocity squared to get deceleration
+		public float airAcceleration = 2.0f; //Acceleration of player in the air
 		public float gravity = 10.5f;
 	}
 	public Movement move = new Movement();
@@ -71,6 +72,9 @@ public class CharacterMotor : MonoBehaviour {
 		
 		transform.eulerAngles = new Vector3(0.0f, control.input.look.y, 0.0f);
 		
+		Vector3 worldMove = new Vector3(control.input.move.x, 0, control.input.move.y);
+		worldMove = transform.rotation * worldMove;
+		
 		if(character.isGrounded) {
 			velocity.y = 0;
 			
@@ -80,8 +84,6 @@ public class CharacterMotor : MonoBehaviour {
 			}
 			
 			//calculate our movement input direction in world space
-			Vector3 worldMove = new Vector3(control.input.move.x, 0, control.input.move.y);
-			worldMove = transform.rotation * worldMove;
 			
 			if(velocity.sqrMagnitude <= slide.sqrSlidingSpeed) {
 				velocity = move.runSpeed * worldMove;
@@ -149,6 +151,7 @@ public class CharacterMotor : MonoBehaviour {
 			} 
 			if (!wallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
+				velocity += worldMove * move.airAcceleration * Time.deltaTime;
 				if(doJump) {
 					jumpedEarly = true;
 				}
