@@ -4,6 +4,7 @@ using System.Collections;
 [RequireComponent (typeof(Controller))]
 public class MouseLookCamera : MonoBehaviour {
 	Controller control;
+
 	public Camera attachedCamera;
 
 	// Use this for initialization

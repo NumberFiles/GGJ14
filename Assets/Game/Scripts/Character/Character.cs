@@ -6,12 +6,13 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterController))]
 public class Character : MonoBehaviour {
 
-	protected CharacterMotor motor;
 	protected Controller control;
+	protected CharacterMotor motor;
 	
 	public string[] weaponSlots = { "Pistol", "Rocket" };
 	protected Dictionary<string, Weapon> slottedWeapons = new Dictionary<string, Weapon>();
 	
+	public float baseHealth = 100f;
 	public float healthPoints {
 		get;
 		set;
@@ -22,7 +23,6 @@ public class Character : MonoBehaviour {
 	}
 		
 	public CharacterController characterController;
-
 	protected virtual void FixedUpdate() {
 		Weapon[] weapons = GetComponentsInChildren<Weapon>();
 		slottedWeapons.Clear();
@@ -49,6 +49,6 @@ public class Character : MonoBehaviour {
 	}
 	
 	void SetInitialProperties() {
-		healthPoints = 100;
+		healthPoints = baseHealth;
 	}
 }

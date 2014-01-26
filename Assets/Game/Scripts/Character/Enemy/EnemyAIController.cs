@@ -30,7 +30,7 @@ public class EnemyAIController : Controller {
 	private float distanceToPlayer;
 	
 	// Use this for initialization
-	void Start () {
+	protected override void Start () {
 		thePlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
 		characterController = GetComponent<CharacterController>();	
 		UnityEngine.Random.seed = RANDOMIZER_SEED;
