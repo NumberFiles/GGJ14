@@ -3,10 +3,6 @@ using System.Collections;
 
 [RequireComponent (typeof(Rigidbody))]
 public class Projectile : MonoBehaviour {
-<<<<<<< HEAD
-=======
-	public GameObject owner;
->>>>>>> origin/master
 	public float speed = 50.0f;
 	public float damage = 10.0f;
 	public float impulse = 0.0f;
@@ -18,11 +14,6 @@ public class Projectile : MonoBehaviour {
 	}
 	
 	void OnCollisionEnter(Collision collision) {
-<<<<<<< HEAD
-=======
-		if(collision.gameObject == owner)
-			return;
->>>>>>> origin/master
 		Character character = collision.gameObject.GetComponent<Character>();
 		if(character != null) {
 			character.healthPoints -= damage;

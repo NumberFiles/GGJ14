@@ -3,11 +3,7 @@ using System.Collections;
 
 public class BasicWeapon : Weapon {
 	public Projectile projectile;
-<<<<<<< HEAD
 	public float spawnAheadBy = 1.0f;
-=======
-	public float spawnAheadBy = 0.5f;
->>>>>>> origin/master
 	public float shotDelay = 1.0f;
 	public bool fullAuto = false;
 	protected float fireDelay = 0.0f;
@@ -35,19 +31,9 @@ public class BasicWeapon : Weapon {
 		return 0;
 	}
 	
-<<<<<<< HEAD
 	public override bool Fire(Vector3 direction){
 		if(fireDelay <= 0.0f) {
 			Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
-=======
-	public override bool Fire(Vector3 direction, Component owner = null){
-		if(owner == null)
-			owner = this;
-		GameObject trueOwner = this.transform.root.gameObject.GetComponentInChildren<CharacterController>().gameObject;
-		if(fireDelay <= 0.0f) {
-			Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
-			projectile.owner = trueOwner;
->>>>>>> origin/master
 			fireDelay = shotDelay;
 		}
 		return fullAuto;

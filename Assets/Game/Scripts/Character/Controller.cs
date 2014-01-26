@@ -14,11 +14,7 @@ public class Controller : MonoBehaviour {
 	public ControlInput input = new ControlInput();
 
 	// Use this for initialization
-<<<<<<< HEAD
 	void Start () {
-=======
-	protected virtual void Start () {
->>>>>>> origin/master
 		Vector3 euler = transform.eulerAngles;
 		input.look = new Vector2(euler.x, euler.y);
 	}

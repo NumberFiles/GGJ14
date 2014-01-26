@@ -38,10 +38,6 @@ public class Player : Character {
 				b = light.color.b + changeRate * Mathf.Sign(dB);
 			} 
 			light.color = new Color(r, g, b);
-<<<<<<< HEAD
-=======
-			light.intensity = 8.0f * healthPoints / baseHealth;
->>>>>>> origin/master
 		}
 	}
 }

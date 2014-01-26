@@ -5,22 +5,13 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterMotor))]
 [RequireComponent(typeof(CharacterController))]
 public class Character : MonoBehaviour {
-<<<<<<< HEAD
 
 	protected CharacterMotor motor;
 	protected Controller control;
 	
 	public string[] weaponSlots = { "Pistol", "Rocket" };
 	protected Dictionary<string, Weapon> slottedWeapons = new Dictionary<string, Weapon>();
-=======
-	protected Controller control;
-	protected CharacterMotor motor;
->>>>>>> origin/master
 	
-	public string[] weaponSlots = { "Pistol", "Rocket" };
-	protected Dictionary<string, Weapon> slottedWeapons = new Dictionary<string, Weapon>();
-	
-	public float baseHealth = 100f;
 	public float healthPoints {
 		get;
 		set;
@@ -31,7 +22,6 @@ public class Character : MonoBehaviour {
 	}
 		
 	public CharacterController characterController;
-<<<<<<< HEAD
 
 	protected virtual void FixedUpdate() {
 		Weapon[] weapons = GetComponentsInChildren<Weapon>();
@@ -60,35 +50,5 @@ public class Character : MonoBehaviour {
 	
 	void SetInitialProperties() {
 		healthPoints = 100;
-=======
-	
-	protected virtual void FixedUpdate() {
-		Weapon[] weapons = GetComponentsInChildren<Weapon>();
-		slottedWeapons.Clear();
-		foreach(Weapon weapon in weapons) {
-			slottedWeapons.Add(weapon.weaponSlot, weapon);
-		}
-		
-		if(control.input.fire) {
-			Weapon weapon = slottedWeapons[weaponSlots[control.input.weapon]];
-			if(weapon != null) {
-				control.input.fire = weapon.Fire(Quaternion.Euler(control.input.look) * Vector3.forward);
-			} else {
-				control.input.fire = false;
-			}
-		}
-	}
-	
-	// Use this for initialization
-	protected virtual void Start () {
-		SetInitialProperties();
-		characterController = GetComponent<CharacterController>();
-		control = GetComponent<Controller>();
-		motor = GetComponent<CharacterMotor>();
-	}
-	
-	void SetInitialProperties() {
-		healthPoints = baseHealth;
->>>>>>> origin/master
 	}
 }
