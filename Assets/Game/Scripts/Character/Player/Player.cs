@@ -18,7 +18,7 @@ public class Player : Character {
 	void UpdateLightBasedOnVelocity() {
 		float speed = Mathf.Clamp(characterController.velocity.magnitude - motor.move.runSpeed + 0.1f, 0.0f, float.PositiveInfinity);
 		float redBlueRatio = 1/(speed / 10.0f + 1);
-		Color color = Color.red * redBlueRatio + Color.blue * (1 - redBlueRatio);
+		Color color = Color.red * redBlueRatio + Color.blue * (1 - redBlueRatio) + Color.green * 0.01f;
 		foreach(Light light in managedLights) {
 			float changeRate = 0.125f * Time.deltaTime;
 			float dR = color.r - light.color.r;

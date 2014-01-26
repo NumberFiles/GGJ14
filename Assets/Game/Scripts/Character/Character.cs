@@ -52,4 +52,11 @@ public class Character : MonoBehaviour {
 	void SetInitialProperties() {
 		healthPoints = baseHealth;
 	}
+	
+	void OnTriggerEnter(Collider collider) {
+		if(collider.gameObject.tag == "Pickup") {
+			Pickup pickup = collider.gameObject.GetComponent<Pickup>();
+			pickup.Grab(this);
+		}
+	}
 }
