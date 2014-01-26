@@ -45,13 +45,19 @@ public class CharacterMotor : MonoBehaviour {
 	
 	[System.Serializable]
 	public class WallRunning {
+		public float range = 0.2f; //Minimum ratio of gravity that must be applied when wallrunning and rising
 		public float minRisingGravity = 0.5f; //Minimum ratio of gravity that must be applied when wallrunning and rising
 		public float risingGravityReductionSlope = 0.075f; //Rate of gravity reduction increase
 		public float minFallingGravity = 0.25f;  //Minimum ratio of gravity that must be applied when wallrunning and falling
 		public float fallingGravityReductionSlope = 0.075f; //Minimum ratio of gravity that must be applied when wallrunning and rising
 		public float friction = 0.0f; //Deceleration of grounded player going above run speed in units per second per second
+		public float momentumTransfer = 0.75f;
+		public float jumpDirectionality = 0.75f;
+		public float jumpVerticality = 0.3f;
 	}
 	public WallRunning wallrun = new WallRunning();
+	public bool isWallRunning { get { return wallRunning != 0.0f; } }
+	public float wallRunning { get; protected set; }
 	
 	// Use this for initialization
 	void Start () {
@@ -75,6 +81,7 @@ public class CharacterMotor : MonoBehaviour {
 		worldMove = transform.rotation * worldMove;
 		
 		if(character.isGrounded) {
+			wallRunning = 0.0f;
 			velocity.y = 0;
 			
 			if(jumpedEarly) {
@@ -103,20 +110,27 @@ public class CharacterMotor : MonoBehaviour {
 				control.input.jump = false;
 			}
 		} else {
-			bool wallRunning = false;
 			if(control.input.wallRun) {
 				Vector3 hVel = new Vector3(velocity.x, 0.0f, velocity.z);
 				Vector3 side = new Vector3(-velocity.z, 0.0f, velocity.x).normalized;
-				Vector3 p1 = transform.position + character.center + Vector3.up * (-character.height*0.5f);
-				Vector3 p2 = p1 + Vector3.up * character.height;
+				Vector3 foot = transform.position + character.center - Vector3.up * (character.height*0.5f-character.radius/2.0f);
 				RaycastHit info1;
 				RaycastHit info2;
-				bool hit1 = Physics.CapsuleCast(p1, p2, character.radius, side, out info1, 0.1f);
-				bool hit2 = Physics.CapsuleCast(p1, p2, character.radius, -side, out info2, 0.1f);
+				bool hit1 = Physics.Raycast(foot, side, out info1, character.radius + wallrun.range);
+				bool hit2 = Physics.Raycast(foot, -side, out info2, character.radius + wallrun.range);
 				hit1 = hit1 && info1.collider.tag == "Structure";
 				hit2 = hit2 && info2.collider.tag == "Structure";
 				if(hit1 || hit2) {
-					wallRunning = true;
+					bool left = hit1 && (!hit2 || info1.distance < info2.distance);
+					side = -(left ? info1 : info2).normal;
+					
+					if(!isWallRunning) {
+						float sideSpeed = Vector3.Dot(hVel, side);
+						Vector3 forward = velocity - sideSpeed * side;
+						velocity += forward.normalized * sideSpeed *wallrun.momentumTransfer;
+					}
+					
+					wallRunning = left ? -1.0f : 1.0f;
 					//apply friction
 					if(wallrun.friction * Time.deltaTime > velocity.magnitude)
 						velocity = Vector3.zero;
@@ -137,20 +151,24 @@ public class CharacterMotor : MonoBehaviour {
 					float reductionFactor = minGravity/(1 + minGravity - 1/(hVel.magnitude*gReductSlope + 1));
 					velocity.y -= move.gravity * Time.deltaTime * reductionFactor;
 					if(doJump) {
-						if(hit1 && (!hit2 || info1.distance < info2.distance))
-							side *= -1;
-						velocity += 0.75f * Vector3.up * jump.verticalJumpImpulse;
-						velocity += 0.25f * (Vector3.up * jump.directionalJumpVerticalImpulse + side * jump.directionalJumpImpulse);
+						velocity += wallrun.jumpVerticality * Vector3.up * jump.verticalJumpImpulse;
+						velocity += wallrun.jumpDirectionality * (Vector3.up * jump.directionalJumpVerticalImpulse - side * jump.directionalJumpImpulse);
 						
 						control.input.jump = false;
 						delayJump = 0.5f;
 					}
+				} else {
+					wallRunning = 0.0f;
 				}
 			} 
-			if (!wallRunning){
+			if (!isWallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
-
-				velocity += worldMove * move.airAcceleration * Time.deltaTime;
+				
+				Vector3 p1 = transform.position + character.center + Vector3.up * (-character.height*0.5f);
+				Vector3 p2 = p1 + Vector3.up * character.height;
+				Vector3 acceleratedVelocity = velocity + worldMove * move.airAcceleration * Time.deltaTime;
+				if(!Physics.CapsuleCast(p1, p2, character.radius, acceleratedVelocity, acceleratedVelocity.magnitude * Time.deltaTime))
+					velocity = acceleratedVelocity;
 				if(doJump) {
 					jumpedEarly = true;
 				}
