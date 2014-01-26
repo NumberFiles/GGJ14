@@ -38,7 +38,7 @@ public class EnemyAIController : Controller {
 	
 	// FixedUpdate is called once per game tick
 	void FixedUpdate () {
-		
+		RandomStep();
 	/*	distanceToPlayer = CalculateDistanceToPlayer();
 		
 		if (distanceToPlayer <= SHOOTING_DISTANCE) {
