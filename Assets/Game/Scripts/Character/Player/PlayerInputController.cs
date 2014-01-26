@@ -2,6 +2,15 @@ using UnityEngine;
 using System.Collections;
 
 public class PlayerInputController : Controller {
+<<<<<<< HEAD
+=======
+	
+	protected override void Start () {
+		Screen.showCursor = false;
+		Screen.lockCursor = true;
+		base.Start();
+	}
+>>>>>>> origin/master
 	
 	// Update is called once per frame
 	void Update () {
