@@ -100,9 +100,6 @@ public class CharacterMotor : MonoBehaviour {
 				velocity += accel * Time.deltaTime;
 			}
 			if(doJump) {
-				if(velocity != Vector3.zero)
-					velocity -= Mathf.Clamp(Vector3.Dot(velocity, worldMove) / velocity.magnitude, -1f, 0f) * worldMove;
-				
 				float directionality = control.input.move.magnitude;
 				velocity += (1 - directionality) * Vector3.up * jump.verticalJumpImpulse;
 				velocity += directionality * (Vector3.up * jump.directionalJumpVerticalImpulse + worldMove * jump.directionalJumpImpulse);
@@ -160,7 +157,9 @@ public class CharacterMotor : MonoBehaviour {
 				} else {
 					wallRunning = 0.0f;
 				}
-			} 
+			} else {
+				wallRunning = 0.0f;
+			}
 			if (!isWallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
 				

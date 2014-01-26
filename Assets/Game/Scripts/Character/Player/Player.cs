@@ -9,6 +9,12 @@ public class Player : Character {
 	protected override void Start () {
 		base.Start();
 	}
+	protected override void FixedUpdate()
+	{
+		base.FixedUpdate();
+		if(healthPoints <= 0.0f)
+			Application.LoadLevel(Application.loadedLevel);
+	}
 	
 	// FixedUpdate is called once per game tick
 	void Update () {
