@@ -1,29 +1,29 @@
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Player))]
 [RequireComponent(typeof(CharacterController))]
+[System.Serializable]
 public class EnemyAIController : Controller {
 	
+	public Waypoint[] path;
+	private Waypoint current;
+	private int currentIndex = 0;
+	
 	//Components
-	private Transform thePlayerPosition;
-	private NavMeshAgent navAgent;
+	private Vector3 thePlayerPosition;
+	private Transform Destination;
 	private CharacterController characterController;
 	
 	
 	//Constants
-	private readonly int SEED = 123;
-	private readonly int PERCENTAGE_CHANCE_TO_IDLE = 30;
+	private readonly int RANDOMIZER_SEED = 123;
+	private readonly int PERCENTAGE_CHANCE_TO_IDLE = 0;
 	private readonly float CHASING_DISTANCE = 20.0f;
 	private readonly float SHOOTING_DISTANCE = 10.0f;
+	private static float WALK_SPEED = 2.0f;
+	private static float CLOSE_ENOUGH_TO_WAYPOINT = 2.0f;
 	
-	//Constants - random walks (relative to current position)
-	private static float RANDOM_WALK_MAX_SPEED = 5.0f;
-	private readonly Vector3 North = new Vector3(RANDOM_WALK_MAX_SPEED, 0.0f, 0.0f);
-	private readonly Vector3 East = new Vector3(-1*RANDOM_WALK_MAX_SPEED, 0.0f, 0.0f);
-	private readonly Vector3 South = new Vector3(0.0f, 0.0f, RANDOM_WALK_MAX_SPEED);
-	private readonly Vector3 West = new Vector3(0.0f, 0.0f, -1*RANDOM_WALK_MAX_SPEED);
 	
 	
 	//variables
@@ -31,14 +31,15 @@ public class EnemyAIController : Controller {
 	
 	// Use this for initialization
 	void Start () {
-		thePlayerPosition = GameObject.FindGameObjectWithTag("Player").transform;
-		navAgent = GetComponent<NavMeshAgent>();
+		thePlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
 		characterController = GetComponent<CharacterController>();	
+		UnityEngine.Random.seed = RANDOMIZER_SEED;
+		current = path[currentIndex];
 	}
 	
 	// FixedUpdate is called once per game tick
 	void FixedUpdate () {
-		RandomStep();
+		IdleOrStepTowardCurrentWaypoint(PERCENTAGE_CHANCE_TO_IDLE);
 	/*	distanceToPlayer = CalculateDistanceToPlayer();
 		
 		if (distanceToPlayer <= SHOOTING_DISTANCE) {
@@ -65,13 +66,15 @@ public class EnemyAIController : Controller {
 		
 	}
 	
-	private void IdleOrRandomStep(int percentageToIdle) {
-		int rollToIdle = Random.Range(0, percentageToIdle);
+	private void IdleOrStepTowardCurrentWaypoint(int percentageToIdle) {
+		int rollToIdle = Random.Range(0, 100);
+		Debug.Log("Roll to Idle: " + rollToIdle);
 		if (rollToIdle <= percentageToIdle) {
+			Debug.Log("Idle");
 			Idle ();	
 		}
 		else {
-			RandomStep();	
+			StepTowardCurrentWaypoint();	
 		}
 	}
 	
@@ -79,12 +82,34 @@ public class EnemyAIController : Controller {
 		//do nothing
 	}
 	
-	private void RandomStep() {
-		UnityEngine.Random.seed = SEED;
-		float moveX = Random.Range(-RANDOM_WALK_MAX_SPEED, RANDOM_WALK_MAX_SPEED);
-		float moveZ = Random.Range(-RANDOM_WALK_MAX_SPEED, RANDOM_WALK_MAX_SPEED);
-		Vector3 randomMovement = new Vector3(moveX, 0, moveZ);
-		navAgent.Move(randomMovement); 
+	private void StepTowardCurrentWaypoint() {
+		if (!CurrentWaypointReached()) {
+			Vector3 move = current.transform.position - transform.position;
+			Vector3 moveAtWalkSpeed = move.normalized * WALK_SPEED;
+			characterController.SimpleMove(moveAtWalkSpeed);
+		}
+		else {
+			ChangeToNextWaypointIfAny();				
+		}
+	}
+	
+	private bool CurrentWaypointReached() {		
+		
+		Vector3 difference = current.transform.position - transform.position;
+		return  difference.sqrMagnitude < CLOSE_ENOUGH_TO_WAYPOINT;	
+	}
+	
+	private void ChangeToNextWaypointIfAny() {
+		Debug.Log("Trying to change waypoint.");
+		int nextIndex = currentIndex+1;
+		if (nextIndex < path.Length) {
+			currentIndex++;		
+		}
+		else {
+			currentIndex = 0;	
+		}
+		current = path[currentIndex];
+		
 	}
 }
 
