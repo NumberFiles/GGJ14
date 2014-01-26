@@ -8,12 +8,12 @@ public class MouseLookCamera : MonoBehaviour {
 	public Camera attachedCamera;
 
 	// Use this for initialization
-	void Start () {
+	protected virtual void Start () {
 		control = GetComponent<Controller>();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	protected virtual void Update () {
 
 		attachedCamera.transform.eulerAngles = new Vector3(control.input.look.x, control.input.look.y, 0.0f);
 
