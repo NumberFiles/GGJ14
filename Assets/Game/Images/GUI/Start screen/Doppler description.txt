@@ -1,15 +1,17 @@
 (after welcome screen, text)
-
-
 Disguised by deepening dusk, you have been dropped on Doppler Island, home to Dr. Doppler and his Dopples!  The dastardly Dr. Doppler is determined to dominate the district!  Dodge and dash through the Doppler Dungeon to discover and destroy the deranged Dopples... but don't become a Dopple dinner!
 
 
-
+(lost life)
+Death is decreed!
 
 (end of game, text before credits)
+Doom is delayed!  With the Dopples destroyed, this drama has reached a delightful denouement.
 
-With the Dopples destroyed, this drama has reached a delightful denouement.   [...in progress]
-
-Options:
+(Options:)
 - Depart to Dashboard
-- Display credits
+- Display directors
+
+
+(credit screen titles:)
+Devised by:
