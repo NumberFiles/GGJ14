@@ -4,7 +4,8 @@ using System.Collections;
 [RequireComponent (typeof(Controller))]
 public class MouseLookCamera : MonoBehaviour {
 	Controller control;
-	public Camera attachedCamarea;
+
+	public Camera attachedCamera;
 
 	// Use this for initialization
 	void Start () {
@@ -13,6 +14,8 @@ public class MouseLookCamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		attachedCamarea.transform.eulerAngles = new Vector3(control.input.look.x, control.input.look.y, 0.0f);
+
+		attachedCamera.transform.eulerAngles = new Vector3(control.input.look.x, control.input.look.y, 0.0f);
+
 	}
 }

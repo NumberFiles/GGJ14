@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 public class PlayerInputController : Controller {
-	
+
 	protected override void Start () {
 		Screen.showCursor = false;
 		Screen.lockCursor = true;

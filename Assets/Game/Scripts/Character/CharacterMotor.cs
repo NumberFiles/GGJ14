@@ -71,7 +71,7 @@ public class CharacterMotor : MonoBehaviour {
 		velocity -= velocity.normalized * Mathf.Clamp(velocity.sqrMagnitude/2 * move.drag * Time.deltaTime, 0.0f, velocity.magnitude);
 		
 		transform.eulerAngles = new Vector3(0.0f, control.input.look.y, 0.0f);
-		
+
 		Vector3 worldMove = new Vector3(control.input.move.x, 0, control.input.move.y);
 		worldMove = transform.rotation * worldMove;
 		
@@ -84,7 +84,6 @@ public class CharacterMotor : MonoBehaviour {
 			}
 			
 			//calculate our movement input direction in world space
-			
 			if(velocity.sqrMagnitude <= slide.sqrSlidingSpeed) {
 				velocity = move.runSpeed * worldMove;
 			} else {
@@ -151,6 +150,7 @@ public class CharacterMotor : MonoBehaviour {
 			} 
 			if (!wallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
+
 				velocity += worldMove * move.airAcceleration * Time.deltaTime;
 				if(doJump) {
 					jumpedEarly = true;

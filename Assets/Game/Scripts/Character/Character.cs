@@ -5,6 +5,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterMotor))]
 [RequireComponent(typeof(CharacterController))]
 public class Character : MonoBehaviour {
+
 	protected Controller control;
 	protected CharacterMotor motor;
 	
@@ -20,8 +21,7 @@ public class Character : MonoBehaviour {
 	public bool IsDead {
 		get { return healthPoints <= 0.0f; }
 	}
-	
-	
+		
 	public CharacterController characterController;
 	
 	protected virtual void FixedUpdate() {

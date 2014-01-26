@@ -3,6 +3,7 @@ using System.Collections;
 
 [RequireComponent (typeof(Rigidbody))]
 public class Projectile : MonoBehaviour {
+
 	public GameObject owner;
 	public float speed = 50.0f;
 	public float damage = 10.0f;
@@ -15,6 +16,7 @@ public class Projectile : MonoBehaviour {
 	}
 	
 	void OnCollisionEnter(Collision collision) {
+
 		if(collision.gameObject == owner)
 			return;
 		Character character = collision.gameObject.GetComponent<Character>();
