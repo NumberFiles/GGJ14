@@ -4,13 +4,13 @@ using System.Collections;
 public class PlayerInputController : Controller {
 
 	protected override void Start () {
-		Screen.showCursor = false;
-		Screen.lockCursor = true;
 		base.Start();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		Screen.showCursor = false;
+		Screen.lockCursor = true;
 		if(Input.GetButtonDown("Jump"))
 			input.jump = true;
 		if(Input.GetButtonUp("Jump"))
