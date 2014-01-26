@@ -11,6 +11,7 @@ public class Character : MonoBehaviour {
 	public string[] weaponSlots = { "Pistol", "Rocket" };
 	protected Dictionary<string, Weapon> slottedWeapons = new Dictionary<string, Weapon>();
 	
+	public float baseHealth = 100f;
 	public float healthPoints {
 		get;
 		set;
@@ -49,6 +50,6 @@ public class Character : MonoBehaviour {
 	}
 	
 	void SetInitialProperties() {
-		healthPoints = 100;
+		healthPoints = baseHealth;
 	}
 }
