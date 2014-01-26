@@ -64,8 +64,7 @@ public class CharacterMotor : MonoBehaviour {
 		if(delayJump > 0.0f)
 			delayJump -= Time.deltaTime;
 		
-		Vector3 velocity = character.velocity + unappliedImpulse;
-		unappliedImpulse = Vector3.zero;
+		Vector3 velocity = character.velocity;
 		
 		//apply drag
 		velocity -= velocity.normalized * Mathf.Clamp(velocity.sqrMagnitude/2 * move.drag * Time.deltaTime, 0.0f, velocity.magnitude);
@@ -157,6 +156,9 @@ public class CharacterMotor : MonoBehaviour {
 				}
 			}
 		}
+		
+		velocity += unappliedImpulse;
+		unappliedImpulse = Vector3.zero;
 		
 		character.Move(velocity * Time.deltaTime);
 		Debug.Log(velocity.magnitude);
