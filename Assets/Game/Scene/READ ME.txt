@@ -1,0 +1,9 @@
+This branch of the repo has been restored at ~1 am 1/27/2014 to its state as of ~10 pm 1/25/2014 (via backup of .git folder, .gitattributes, .gitignore, and GGJ14.userprefs and deleting and replacing the rest of the folder contents with the still working backup copy that had been saved to usb ~10 pm 1/25/2014), following observation on 1/26/2014 that:
+
+1) the .unity file in this branch folder, when opened in Unity, appeared to be corrupted again (view in scene was grey rather than showing landscape, and file links were broken again),
+and
+2) several of the files associated with this branch had not uploaded with the update, and would not upload, even after several attempts.
+
+After the process outlined above, now all the files that should be associated with this branch have been able to upload.  It is expected that now the file "new mountains for old Unity v1.unity" will load in Unity v. 4.1; however, I can't check because I have 4.3, and opening the 4.1 in 4.3 does an automatic and irreversable conversion.  However, testing with files in the DopplerIsland repo indicates that the 4.1 island upgrades with no apparent issues to 4.3.  So, let me know if you want to take this as is (4.1) or an upgraded to 4.3 version.
+
+(Note that if for some reason this branch is still not working (i.e. if file loads grey and with unlinked attributes), the files in DopplerIsland repo both seem to load okay in Unity, so you could copy out the files from there).
