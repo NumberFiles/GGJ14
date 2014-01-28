@@ -9,6 +9,7 @@ public class Projectile : MonoBehaviour {
 	public float damage = 10.0f;
 	public float impulse = 0.0f;
 	public Object spawnOnDestroy = null;
+	protected Vector3 spawnOnDestroyPosition = Vector3.zero;
 
 	// Use this for initialization
 	void Start () {
@@ -29,12 +30,13 @@ public class Projectile : MonoBehaviour {
 				motor.ApplyImpulse((motor.transform.position - transform.position) * impulse);
 			}
 		}
+		spawnOnDestroyPosition = collision.contacts[0].point;
 		Destroy(gameObject);
 	}
 	
 	void OnDestroy() {
 		if(spawnOnDestroy != null) {
-			Instantiate(spawnOnDestroy,transform.position, transform.rotation);
+			Instantiate(spawnOnDestroy, spawnOnDestroyPosition, transform.rotation);
 		}
 	}
 }

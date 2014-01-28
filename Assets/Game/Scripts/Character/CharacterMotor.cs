@@ -178,7 +178,6 @@ public class CharacterMotor : MonoBehaviour {
 		unappliedImpulse = Vector3.zero;
 		
 		character.Move(velocity * Time.deltaTime);
-		Debug.Log(velocity.magnitude);
 	}
 	
 	public void ApplyImpulse(Vector3 impulse) {

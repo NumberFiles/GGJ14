@@ -18,39 +18,21 @@ public class Explosion : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Collider[] core = Physics.OverlapSphere(transform.position, coreRadius);
-		Collider[] banded = Physics.OverlapSphere(transform.position, edgeRadius);
-		foreach(Collider collider in core) {
-			Character character = collider.GetComponent<Character>();
-			CharacterMotor motor = collider.GetComponent<CharacterMotor>();
-			if(character != null) {
-				character.healthPoints -= coreDamage;
-			}
-			if(motor != null) {
-				motor.ApplyImpulse(coreImpulse * (collider.transform.position - transform.position).normalized);
-			} else if(collider.attachedRigidbody != null) {
-				collider.attachedRigidbody.AddForce(coreImpulse * (collider.attachedRigidbody.centerOfMass - transform.position).normalized, ForceMode.Impulse);
-			}
-		}
-		foreach(Collider collider in banded) {
-			bool hitCore = false;
-			foreach(Collider coreCollider in core) {
-				if(collider == coreCollider) {
-					hitCore = true;
-					break;
-				}
-			}
-			if(hitCore)
-				continue;
+		Collider[] hits = Physics.OverlapSphere(transform.position, edgeRadius);
+		foreach(Collider collider in hits) {
 			Character character = collider.GetComponent<Character>();
 			CharacterMotor motor = collider.GetComponent<CharacterMotor>();
 			if(motor != null || character != null || collider.attachedRigidbody != null)
 			{
 				Vector3 to = (collider.attachedRigidbody ? collider.attachedRigidbody .centerOfMass : collider.transform.position) - transform.position;
+				if(to.Equals(Vector3.zero))
+					to = Vector3.up;
+				float distanceToCenter = to.magnitude;
 				to.Normalize();
 				RaycastHit raycastHit;
-				collider.Raycast(new Ray(transform.position, to), out raycastHit, edgeRadius);
-				float forceRatio = (edgeRadius - raycastHit.distance) / (edgeRadius - coreRadius);
+				float forceRatio = 1.0f;
+				if(collider.Raycast(new Ray(transform.position, to), out raycastHit, distanceToCenter * 1.1f))
+					forceRatio = Mathf.Clamp((edgeRadius - raycastHit.distance) / (edgeRadius - coreRadius), 0.0f, 1.0f);
 				if(character != null) {
 					character.healthPoints -= coreDamage * forceRatio + edgeDamage * (1 - forceRatio);
 				}

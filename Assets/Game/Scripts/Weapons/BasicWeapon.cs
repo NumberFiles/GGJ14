@@ -31,13 +31,12 @@ public class BasicWeapon : Weapon {
 		return 0;
 	}
 	
-	public override bool Fire(Vector3 direction, Component owner = null){
+	public override bool Fire(Vector3 direction, GameObject owner = null){
 		if(owner == null)
-			owner = this;
-		GameObject trueOwner = this.transform.root.gameObject.GetComponentInChildren<CharacterController>().gameObject;
+			owner = this.transform.root.gameObject.GetComponentInChildren<CharacterController>().gameObject;
 		if(fireDelay <= 0.0f) {
-			Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
-			projectile.owner = trueOwner;
+			Projectile shot = (Projectile)Instantiate(projectile, transform.position + direction * spawnAheadBy, Quaternion.LookRotation(direction));
+			shot.owner = owner;
 			fireDelay = shotDelay;
 		}
 		return fullAuto;
