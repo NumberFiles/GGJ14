@@ -109,12 +109,12 @@ public class CharacterMotor : MonoBehaviour {
 		} else {
 			if(control.input.wallRun) {
 				Vector3 hVel = new Vector3(velocity.x, 0.0f, velocity.z);
-				Vector3 side = new Vector3(-velocity.z, 0.0f, velocity.x).normalized;
-				Vector3 foot = transform.position + character.center - Vector3.up * (character.height*0.5f-character.radius/2.0f);
+				Vector3 side = new Vector3(-transform.forward.z, 0.0f, transform.forward.x).normalized;
+				Vector3 foot = transform.position + character.center - Vector3.up * (character.height*0.5f);
 				RaycastHit info1;
 				RaycastHit info2;
-				bool hit1 = Physics.Raycast(foot, side, out info1, character.radius + wallrun.range);
-				bool hit2 = Physics.Raycast(foot, -side, out info2, character.radius + wallrun.range);
+				bool hit1 = Physics.SphereCast(foot, character.radius * 0.75f, side, out info1, character.radius * 0.25f + wallrun.range);
+				bool hit2 = Physics.SphereCast(foot, character.radius * 0.75f, -side, out info2, character.radius * 0.25f + wallrun.range);
 				hit1 = hit1 && info1.collider.tag == "Structure";
 				hit2 = hit2 && info2.collider.tag == "Structure";
 				if(hit1 || hit2) {
