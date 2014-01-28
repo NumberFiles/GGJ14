@@ -87,7 +87,7 @@ function Start()
 
 function Disable()
 {
-	this.Disable();
+	gameObject.SetActive(false);
 	enumeratedJoysticks = false;
 }
 
