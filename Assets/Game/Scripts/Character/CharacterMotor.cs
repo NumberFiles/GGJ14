@@ -176,8 +176,48 @@ public class CharacterMotor : MonoBehaviour {
 		
 		velocity += unappliedImpulse;
 		unappliedImpulse = Vector3.zero;
-		
+
+		Vector3 start = transform.position;
 		character.Move(velocity * Time.deltaTime);
+
+		/*Quick dirty and ugly fix for deadstops on meshes
+		Basically see if moving the player 0.01f perindicular to velocity and attempting
+		move again results in a noticable difference*/
+		//TODO: Remove this hack and find a good solution
+		float desiredSpeed = velocity.magnitude;
+		float speed = character.velocity.magnitude;
+		if((velocity.x != 0 || velocity.z != 0) && (desiredSpeed - speed)/desiredSpeed > 0.25f) {
+			float speed0 = speed * 1.25f;
+			float speed1 = 0f;
+			float speed2 = 0f;
+
+			Vector3 side = new Vector3(-velocity.z, 0.0f, velocity.x).normalized * 0.01f;
+
+			Vector3 p1 = start + character.center + Vector3.up * (-character.height*0.5f);
+			Vector3 p2 = p1 + Vector3.up * character.height;
+			// Cast character controller shape 10 meters forward, to see if it is about to hit anything
+
+			if(!Physics.CapsuleCast(p1, p2, character.radius, side, 0.015f)) {
+				transform.position = start + side;
+				character.Move(velocity * Time.deltaTime);
+				speed1 = character.velocity.magnitude;
+			}
+			
+
+			if(!Physics.CapsuleCast(p1, p2, character.radius, -side, 0.015f)) {
+				transform.position = start - side;
+				character.Move(velocity * Time.deltaTime);
+				speed2 = character.velocity.magnitude;
+			}
+
+			if(speed1 > speed0 || speed2 > speed0) {
+				transform.position = start + (speed1 > speed2 ? side : -side);
+				character.Move(velocity * Time.deltaTime);
+			} else {
+				transform.position = start;
+				character.Move(velocity * Time.deltaTime);
+			}
+		}
 	}
 	
 	public void ApplyImpulse(Vector3 impulse) {
