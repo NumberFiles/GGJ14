@@ -199,27 +199,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   move:
-    runSpeed: 8
-    groundFriction: 40
+    runSpeed: 10
+    groundFriction: 45
     drag: .00200000009
-    airAcceleration: 2
-    gravity: 10.5
+    airAcceleration: 2.5
+    gravity: 14
   slide:
-    slidingSpeed: 8.10000038
-    stopRate: 5
+    slidingSpeed: 12.1000004
+    stopRate: 7
   jump:
-    verticalJumpImpulse: 6
+    verticalJumpImpulse: 8
     directionalJumpImpulse: 3
-    directionalJumpVerticalImpulse: 4.19999981
+    directionalJumpVerticalImpulse: 5.5999999
     earlyJumpPenalty: .100000001
   wallrun:
     range: .200000003
-    minRisingGravity: .5
+    minRisingGravity: .75
     risingGravityReductionSlope: .075000003
-    minFallingGravity: .25
+    minFallingGravity: .5
     fallingGravityReductionSlope: .075000003
     friction: 0
-    momentumTransfer: .5
+    momentumTransfer: .75
     jumpDirectionality: .75
     jumpVerticality: .300000012
 --- !u!114 &11400006

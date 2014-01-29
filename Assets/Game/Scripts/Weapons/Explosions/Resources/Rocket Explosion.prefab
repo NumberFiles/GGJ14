@@ -68,8 +68,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68664f20a83c8b942bb5c91097954564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coreImpulse: 10
-  edgeImpulse: 3
+  coreImpulse: 15
+  edgeImpulse: 5
   coreDamage: 45
   edgeDamage: 10
   coreRadius: .75

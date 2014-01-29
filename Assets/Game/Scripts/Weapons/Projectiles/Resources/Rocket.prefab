@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
-  speed: 25
+  speed: 35
   damage: 10
   impulse: 0
   spawnOnDestroy: {fileID: 100000, guid: f4e14573a5d91514184fb96fb38a0e53, type: 2}
