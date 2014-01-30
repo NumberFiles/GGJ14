@@ -30,7 +30,6 @@ public class CharacterMotor : MonoBehaviour {
 	public class Sliding {
 		public float slidingSpeed = 12.1f; //Running speed in units per second
 		public float sqrSlidingSpeed { get { return slidingSpeed * slidingSpeed; } }
-		public float stopRate = 7.0f; //Rate of deceleration when player opposes movement above sliding speed in units per second per second
 	}
 	public Sliding slide = new Sliding();
 	
@@ -96,7 +95,6 @@ public class CharacterMotor : MonoBehaviour {
 				Vector3 velDir = velocity.normalized;
 				Vector3 accel = Vector3.zero;
 				accel -= velDir * move.groundFriction;
-				accel += Mathf.Clamp(Vector3.Dot(worldMove, velDir), -1f, 0f) * velDir;
 				velocity += accel * Time.deltaTime;
 			}
 			if(doJump) {
