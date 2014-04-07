@@ -55,8 +55,24 @@ public class CharacterMotor : MonoBehaviour {
 		public float jumpVerticality = 0.3f;
 	}
 	public WallRunning wallrun = new WallRunning();
-	public bool isWallRunning { get { return wallRunning != 0.0f; } }
-	public float wallRunning { get; protected set; }
+
+	protected RaycastHit wallRunFooting = new RaycastHit();
+	public bool isWallRunning {
+		get { return wallRunFooting.collider != null; }
+	}
+	public float wallRunning {
+		get {
+			return isWallRunning ? 
+				Mathf.Sign(Vector3.Dot(wallRunFooting.point - transform.position, transform.right)) :
+					0.0f;
+		}
+	}
+	public void WallRun(RaycastHit footing) {
+		wallRunFooting = footing;
+	}
+	public void StopWallRunning() {
+		wallRunFooting = new RaycastHit();
+	}
 	
 	// Use this for initialization
 	void Start () {
@@ -80,7 +96,7 @@ public class CharacterMotor : MonoBehaviour {
 		worldMove = transform.rotation * worldMove;
 		
 		if(character.isGrounded) {
-			wallRunning = 0.0f;
+			StopWallRunning();
 			velocity.y = 0;
 			
 			if(jumpedEarly) {
@@ -120,12 +136,12 @@ public class CharacterMotor : MonoBehaviour {
 					side = -(left ? info1 : info2).normal;
 					
 					if(!isWallRunning) {
-						float sideSpeed = Vector3.Dot(hVel, side);
+						float sideSpeed = Mathf.Max(Vector3.Dot(hVel, side), 0.0f);
 						Vector3 forward = hVel - sideSpeed * side;
-						velocity += forward.normalized * sideSpeed *wallrun.momentumTransfer;
+						velocity += forward.normalized * sideSpeed * wallrun.momentumTransfer;
 					}
 					
-					wallRunning = left ? -1.0f : 1.0f;
+					WallRun(left ? info1 : info2);
 					//apply friction
 					if(wallrun.friction * Time.deltaTime > velocity.magnitude)
 						velocity = Vector3.zero;
@@ -153,10 +169,10 @@ public class CharacterMotor : MonoBehaviour {
 						delayJump = 0.5f;
 					}
 				} else {
-					wallRunning = 0.0f;
+					StopWallRunning();
 				}
 			} else {
-				wallRunning = 0.0f;
+				StopWallRunning();
 			}
 			if (!isWallRunning){
 				velocity.y -= move.gravity * Time.deltaTime;
