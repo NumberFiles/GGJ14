@@ -11,6 +11,12 @@ public class PlayerInputController : Controller {
 	void Update () {
 		Screen.showCursor = false;
 		Screen.lockCursor = true;
+
+		if(Input.GetButton("Exit"))
+			Application.Quit();
+		else if(Input.GetButton("Restart"))
+			Application.LoadLevel(Application.loadedLevel);
+
 		if(Input.GetButtonDown("Jump"))
 			input.jump = true;
 		if(Input.GetButtonUp("Jump"))
