@@ -62,8 +62,7 @@ public class CharacterMotor : MonoBehaviour {
 	}
 	public float wallRunning {
 		get {
-			return isWallRunning ? 
-				Mathf.Sign(Vector3.Dot(wallRunFooting.point - transform.position, transform.right)) :
+			return isWallRunning ? Vector3.Dot(-wallRunFooting.normal, transform.right) :
 					0.0f;
 		}
 	}
