@@ -12,8 +12,10 @@ public class PlayerInputController : Controller {
 		Screen.showCursor = false;
 		Screen.lockCursor = true;
 
-		if(Input.GetButton("Exit"))
+		if(Input.GetButton("Exit")) {
 			Application.Quit();
+			Debug.Log("Quit");
+		}
 		else if(Input.GetButton("Restart"))
 			Application.LoadLevel(Application.loadedLevel);
 
